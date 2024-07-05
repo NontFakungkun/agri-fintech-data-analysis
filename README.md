@@ -31,7 +31,10 @@ I have designed a model that uses the ARIMA model to forecast the price and cont
 In addition to the ARIMA model, I will also use VADER to perform sentiment analysis on commodity news. This will allow me to return the sentiment of each contract, whether it is negative or positive.
 
 ### Price and Trading Volume Forecast with ARIMA Model
-The model below are used to 
+
+Putting ARIMA model into implementation. The model forecasts the following values based on different inputs.
+* st: This parameter specifies the number of forecasted values the model will generate. For instance, if st = 7, the model will produce a forecast for the next 7 time periods. In our context of daily data, this would correspond to a 7-day forecast, with each value representing the predicted price or volume for each of those days.
+* display_range: This parameter defines the range of historical data to include in the output alongside the forecasted values. By incorporating recent historical data in the displayed chart, users can observe a comprehensive view of both the past trends and the forecast.
 ```
 def Station3_ARIMAForecast(df, p, d, q, st, display_range):
     model = ARIMA(df, order=(p, d, q))
@@ -63,6 +66,7 @@ wheat_volume_arima_forecast_1month = Station3_ARIMAForecast(wheat_price_df['CVol
 wheat_volume_arima_forecast_3months = Station3_ARIMAForecast(wheat_price_df['CVol'], 90, 1, 30, 90, 180)
 ```
 
+This section displays the average return forecast for each product at different period.
 ```
 def Station4_ReturnForecast(current_price, fc1_price, fc2_price, fc3_price, fc4_price, topic, fc_period_list):
     fc1_ret = (fc1_price - current_price) / current_price * 100
@@ -86,7 +90,7 @@ Station4_ReturnForecast(wheat_price_df['Settlement Price'][-1], wheat_price_arim
 ![result](Images/predicted_rets.jpg)
 
 ### Sentiment Forecast with VADER Model
-
+Preparing the data by separating news of corn and wheat to different DataFrames
 ```
 def Station2_relevant_news(news_df, text):
     df = pd.DataFrame()
@@ -99,7 +103,8 @@ corn_news_df = Station2_relevant_news(news_df, 'corn')
 wheat_news_df = Station2_relevant_news(news_df, 'wheat')
 ```
 
-
+Putting VADER model into implementation. The model analyses and converts text into numeric value incidating whether the text is positive or negative.
+The values is then put into ARIMA model for further forecast.
 ```
 def Station3_VADER(df):
     # Instantiate the sentiment intensity analyzer
@@ -136,6 +141,7 @@ wheat_sentiment_forecast_14days = Station3_ARIMAForecast(wheat_mean_sentiment_sc
 wheat_sentiment_forecast_1month = Station3_ARIMAForecast(wheat_mean_sentiment_score['compound'], 30, 1, 30, 30, len(wheat_mean_sentiment_score))
 ```
 
+This section displays the average sentiment result for each display period to give user an overview of the product for different period of time, similarly to company stocks.
 ```
 def Station4_MeanSentiment(compound_data, topic, average_period_list, display_period_list):
     mean_value1 = compound_data[-average_period_list[0]:].mean()
@@ -189,17 +195,8 @@ The code for all stages is in [assignment_data_process.py](Analysis/assignment_d
 * Price and contract volume forecasts: The application will make forecasts for 4 ranges of time: 7 days, 14 days, 1 month, 3 months. This will allow users to make informed decisions according to their trading strategies.
 * Sentiment analysis: The application will also provide sentiment analysis of news related to agricultural commodities futures contracts. There will be 4 ranges of forecast period: 3 day, 7 days, 14 days, and 1 month. This information will help users to understand the market sentiment and make informed trading decisions.
 
+Line and Bar plot are used to display the past and forecast data. The function is dynamic and flexible as it takes any 4 plots into display. This will be used multiple times throughout the section
 ```
-def Station4_ReturnForecast(current_price, fc1_price, fc2_price, fc3_price, fc4_price, topic, fc_period_list):
-    fc1_ret = (fc1_price - current_price) / current_price * 100
-    fc2_ret = (fc2_price - current_price) / current_price * 100
-    fc3_ret = (fc3_price - current_price) / current_price * 100
-    fc4_ret = (fc4_price - current_price) / current_price * 100
-    print(f"{topic} {fc_period_list[0]} return: {fc1_ret.round(2)}%")
-    print(f"{topic} {fc_period_list[1]} return: {fc2_ret.round(2)}%")
-    print(f"{topic} {fc_period_list[2]} return: {fc3_ret.round(2)}%")
-    print(f"{topic} {fc_period_list[3]} return: {fc4_ret.round(2)}%")
-
 def Station4_ARIMALinePlot(fc1, fc2, fc3, fc4, display_list, forecast_topic, forecast_period_list):
     fig, axs = plt.subplots(2, 2, figsize=(15, 10), sharey=True)
     axs[0, 0].plot(fc1.index[:display_list[0]], fc1.values[:display_list[0]],
@@ -327,22 +324,6 @@ Station4_ARIMALinePlot(wheat_sentiment_forecast_3days, wheat_sentiment_forecast_
 ### Encountered difficulties
 * There are numerous options for setting the input parameters of the ARIMA model, namely p, d, and q variables. This abundance of choices makes it challenging to determine the optimal combination that provides the best results.
 * The sentiment analysis results are challenging to present as the sentiment scores are mostly less than 0.1. They are considered to be neutral, so it is difficult to determine whether the news articles are positive or negative. At the moment, I have decided to simply present the results as an overview of whether the sentiment is positive or negative for the given period of time.
-
-### Steps to apply when introducing this financial product to clients
-1. Match client's needs and goals with the benefit of the product. Once we understand their needs, we can better explain how the product can help them achieve their goals. Make sure to highlight the key benefits that are most relevant to the clients.
-2. Demonstrate how the product works. We can provide scenarios or use cases that the product will be useful rather than just telling the clients about the product.
-3. Answer client's questions. Be prepared to answer any questions that the clients may have about this product.
-4. Follow up with clients. After we have introduced the product to the clients, follow up with them to see how they are doing. This will help us to identify any potential problems for future improvement and to provide additional support.
-
-### Customer journey
-1. The customer creates an account and enters their contact information.
-2. The customer selects the commodities that they are interested in trading.
-3. The customer navigate in the apps via navigation bar
-4. The customer picks the forecast period and views the forecasts for the price and contract volume of the selected commodities according to their strategies.
-5. The customer views the sentiment analysis and sentiment forecast of news related to the selected commodities.
-6. The customer decides whether to trade the selected commodities based on the forecasts and sentiment analysis.
-7. The customer trades the selected commodities and monitors their performance.
-8. The customer makes adjustments to their trading strategy as needed.
 
 
 ## FIGMA design
