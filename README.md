@@ -8,7 +8,7 @@
 > * Sentiment Trend
 
 ### Input Data
-The input data consists of 5 database i.e., 2 excel sheets, and 1 json file:
+The input data consists of 3 databases i.e., 2 excel sheets, and 1 json file:
 1. Wheat trading data from 1 August 2018 to 31 July 2020
 2. Corn trading data from 1 August 2018 to 31 July 2020
 3. Relevant news data in json format
